@@ -28,75 +28,6 @@ Renderer::Renderer()
     Initialize();
 }
 
-GLuint Renderer::LoadShader(GLenum type, const char* shaderSrc) 
-{
-    GLuint shader;
-    GLint compiled;
-
-    GlCall(shader = glCreateShader(type));
-    if(shader == 0)
-        return 0;
-
-    GlCall(glShaderSource(shader, 1, &shaderSrc, NULL));
-    GlCall(glCompileShader(shader));
-    GlCall(glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled));
-    
-    if(!compiled) 
-    {
-        GLint infoLen = 0;
-        GlCall(glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen));
-        if(infoLen > 1)
-        {
-            char* infoLog = static_cast<char*>(malloc(sizeof(char) * infoLen));
-            GlCall(glGetShaderInfoLog(shader, infoLen, NULL, infoLog));
-            fprintf(stderr, "Error compiling shader:\n%s\n", infoLog);
-            free(infoLog);
-        }
-        GlCall(glDeleteShader(shader));
-        return 0;
-    }
-    return shader;
-}
-
-GLuint Renderer::CreateProgramObject(GLuint vertexShader, GLuint fragmentShader) 
-{
-    bool error = false;
-
-    GLuint programObject;
-    GLint linked;
-
-    GlCall(programObject = glCreateProgram());
-    if(programObject == 0)
-        return 0;
-
-    GlCall(glAttachShader(programObject, vertexShader));
-    GlCall(glAttachShader(programObject, fragmentShader));
-
-
-    if (error) {
-        GlCall(glDeleteProgram(programObject));
-        return 0;
-    }
-    
-    GlCall(glLinkProgram(programObject));
-    GlCall(glGetProgramiv(programObject, GL_LINK_STATUS, &linked));
-    if(!linked) 
-    {
-        GLint infoLen = 0;
-        GlCall(glGetProgramiv(programObject, GL_INFO_LOG_LENGTH, &infoLen));
-        if(infoLen > 1)
-        {
-            char infoLog[sizeof(char) * infoLen];
-            GlCall(glGetProgramInfoLog(programObject, infoLen, NULL, infoLog));
-            std::cout << std::string(infoLog, infoLog + infoLen) << "\n"; 
-        }
-        GlCall(glDeleteProgram(programObject));
-        return 0;
-    }
-
-    return programObject;
-}
-
 void Renderer::Initialize() 
 {   
     const char vShaderStr[] =
@@ -487,7 +418,6 @@ void Renderer::HandlePartialAngle(float& partialAngle, int& rotationSign, float&
         amountRemaining = -rotationSign;
         amountRemaining = abs(amountRemaining) > 1. ? (amountRemaining > 0) - (amountRemaining < 0) : amountRemaining;
         rotationSign = 0;
-        
     }
 
     if (abs(amountRemaining) > 0.1) {

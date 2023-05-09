@@ -21,10 +21,9 @@ GLuint ShaderProgram::LoadShader(GLenum type, const char* shaderSrc)
         GlCall(glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen));
         if(infoLen > 1)
         {
-            char* infoLog = static_cast<char*>(malloc(sizeof(char) * infoLen));
+            char infoLog[infoLen];
             GlCall(glGetShaderInfoLog(shader, infoLen, NULL, infoLog));
-            fprintf(stderr, "Error compiling shader:\n%s\n", infoLog);
-            free(infoLog);
+            std::cout << std::string(infoLog, infoLog + infoLen) << "\n";
         }
         GlCall(glDeleteShader(shader));
         return 0;
